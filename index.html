@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kc's Budget Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .period-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .period-selector button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .period-selector button:hover {
+            background-color: #2980b9;
+        }
+        .period-selector button.active {
+            background-color: #27ae60;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: bold;
+        }
+        .income-row {
+            background-color: #d5f4e6;
+        }
+        .expense-row {
+            background-color: #ffeaa7;
+        }
+        .savings-row {
+            background-color: #74b9ff;
+            color: white;
+            font-weight: bold;
+        }
+        .total-row {
+            background-color: #2d3436;
+            color: white;
+            font-weight: bold;
+        }
+        .editable {
+            background-color: #fff3cd;
+            border: 2px dashed #ffc107;
+        }
+        input[type="number"] {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: right;
+            font-size: 14px;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        .summary-card .amount {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .note {
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Kc's Budget Tracker</h1>
+        
+        <div class="period-selector">
+            <button id="biweekly-btn" class="active" onclick="showPeriod('biweekly')">Biweekly View</button>
+            <button id="monthly-btn" onclick="showPeriod('monthly')">Monthly View</button>
+            <button id="annual-btn" onclick="showPeriod('annual')">Annual View</button>
+        </div>
+
+        <!-- Biweekly Budget -->
+        <div id="biweekly-budget">
+            <h2>Biweekly Budget (Every 2 Weeks)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount ($)</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="income-row">
+                        <td><strong>Income</strong></td>
+                        <td><strong>$1,900.00</strong></td>
+                        <td>Biweekly salary</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Insurance</td>
+                        <td>$104.50</td>
+                        <td>$209/month ÷ 2</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Car Financing</td>
+                        <td>$169.00</td>
+                        <td>Biweekly payment</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Phone Bill</td>
+                        <td>$54.00</td>
+                        <td>$108/month ÷ 2</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Utilities</td>
+                        <td>$49.00</td>
+                        <td>$98/month ÷ 2</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Rent</td>
+                        <td>$640.00</td>
+                        <td>$1,280/month ÷ 2</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Miscellaneous</td>
+                        <td class="editable">
+                            $<input type="number" id="misc-biweekly" value="75" min="25" max="50" step="5" onchange="updateBudget()">
+                        </td>
+                        <td>$50-100 biweekly (adjustable)</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Groceries</td>
+                        <td class="editable">
+                            $<input type="number" id="groceries-biweekly" value="200" max="200" step="10" onchange="updateBudget()">
+                        </td>
+                        <td>Max $200 biweekly (adjustable)</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>Total Expenses</strong></td>
+                        <td><strong id="total-expenses-biweekly">$1,291.50</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr class="savings-row">
+                        <td><strong>Available for Savings</strong></td>
+                        <td><strong id="savings-biweekly">$608.50</strong></td>
+                        <td>Income - Expenses</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Monthly Budget -->
+        <div id="monthly-budget" style="display: none;">
+            <h2>Monthly Budget</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount ($)</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="income-row">
+                        <td><strong>Income</strong></td>
+                        <td><strong id="income-monthly">$3,800.00</strong></td>
+                        <td>$1,900 × 2 pay periods</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Insurance</td>
+                        <td>$209.00</td>
+                        <td>Monthly payment</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Car Financing</td>
+                        <td>$338.00</td>
+                        <td>$169 × 2 pay periods</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Phone Bill</td>
+                        <td>$108.00</td>
+                        <td>Monthly payment</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Utilities</td>
+                        <td>$98.00</td>
+                        <td>Monthly payment</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Rent</td>
+                        <td>$1,280.00</td>
+                        <td>Monthly payment</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Miscellaneous</td>
+                        <td id="misc-monthly">$150.00</td>
+                        <td>Biweekly amount × 2</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Groceries</td>
+                        <td id="groceries-monthly">$400.00</td>
+                        <td>Biweekly amount × 2</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>Total Expenses</strong></td>
+                        <td><strong id="total-expenses-monthly">$2,583.00</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr class="savings-row">
+                        <td><strong>Available for Savings</strong></td>
+                        <td><strong id="savings-monthly">$1,217.00</strong></td>
+                        <td>Income - Expenses</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Annual Budget -->
+        <div id="annual-budget" style="display: none;">
+            <h2>Annual Budget</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount ($)</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="income-row">
+                        <td><strong>Income</strong></td>
+                        <td><strong id="income-annual">$49,400.00</strong></td>
+                        <td>$1,900 × 26 pay periods</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Insurance</td>
+                        <td>$2,508.00</td>
+                        <td>$209 × 12 months</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Car Financing</td>
+                        <td>$4,394.00</td>
+                        <td>$169 × 26 pay periods</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Phone Bill</td>
+                        <td>$1,296.00</td>
+                        <td>$108 × 12 months</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Utilities</td>
+                        <td>$1,176.00</td>
+                        <td>$98 × 12 months</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Rent</td>
+                        <td>$15,360.00</td>
+                        <td>$1,280 × 12 months</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Miscellaneous</td>
+                        <td id="misc-annual">$1,950.00</td>
+                        <td>Biweekly amount × 26</td>
+                    </tr>
+                    <tr class="expense-row">
+                        <td>Groceries</td>
+                        <td id="groceries-annual">$5,200.00</td>
+                        <td>Biweekly amount × 26</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>Total Expenses</strong></td>
+                        <td><strong id="total-expenses-annual">$32,884.00</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr class="savings-row">
+                        <td><strong>Available for Savings</strong></td>
+                        <td><strong id="savings-annual">$16,516.00</strong></td>
+                        <td>Income - Expenses</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Biweekly Savings</h3>
+                <div class="amount" id="summary-biweekly">$608.50</div>
+            </div>
+            <div class="summary-card">
+                <h3>Monthly Savings</h3>
+                <div class="amount" id="summary-monthly">$1,217.00</div>
+            </div>
+            <div class="summary-card">
+                <h3>Annual Savings</h3>
+                <div class="amount" id="summary-annual">$16,516.00</div>
+            </div>
+        </div>
+
+        <div class="note">
+            <h3>📝 Budget Notes:</h3>
+            <ul>
+                <li><strong>Adjustable Items:</strong> You can modify your miscellaneous spending ($50-100) and grocery budget (up to $200) using the input fields above.</li>
+                <li><strong>Savings Rate:</strong> With current settings, you're saving approximately 32% of your income - still very good!</li>
+                <li><strong>Emergency Fund:</strong> Consider setting aside 3-6 months of expenses ($7,749-$15,498) as an emergency fund.</li>
+                <li><strong>Investment Options:</strong> With high savings potential, consider retirement accounts (401k, IRA) and other investments.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showPeriod(period) {
+            // Hide all budget views
+            document.getElementById('biweekly-budget').style.display = 'none';
+            document.getElementById('monthly-budget').style.display = 'none';
+            document.getElementById('annual-budget').style.display = 'none';
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.period-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected period and activate button
+            document.getElementById(period + '-budget').style.display = 'block';
+            document.getElementById(period + '-btn').classList.add('active');
+        }
+
+        function updateBudget() {
+            const miscBiweekly = parseFloat(document.getElementById('misc-biweekly').value) || 0;
+            const groceriesBiweekly = parseFloat(document.getElementById('groceries-biweekly').value) || 0;
+            
+            // Fixed biweekly expenses
+            const fixedExpenses = 104.50 + 169.00 + 54.00 + 49.00 + 640.00; // Insurance + Car + Phone + Utilities + Rent
+            const totalExpensesBiweekly = fixedExpenses + miscBiweekly + groceriesBiweekly;
+            const savingsBiweekly = 1900 - totalExpensesBiweekly;
+            
+            // Update biweekly display
+            document.getElementById('total-expenses-biweekly').textContent = '$' + totalExpensesBiweekly.toFixed(2);
+            document.getElementById('savings-biweekly').textContent = '$' + savingsBiweekly.toFixed(2);
+            
+            // Calculate monthly values
+            const miscMonthly = miscBiweekly * 2;
+            const groceriesMonthly = groceriesBiweekly * 2;
+            const totalExpensesMonthly = 209 + 338 + 108 + 98 + 1280 + miscMonthly + groceriesMonthly;
+            const savingsMonthly = 3800 - totalExpensesMonthly;
+            
+            // Update monthly display
+            document.getElementById('misc-monthly').textContent = '$' + miscMonthly.toFixed(2);
+            document.getElementById('groceries-monthly').textContent = '$' + groceriesMonthly.toFixed(2);
+            document.getElementById('total-expenses-monthly').textContent = '$' + totalExpensesMonthly.toFixed(2);
+            document.getElementById('savings-monthly').textContent = '$' + savingsMonthly.toFixed(2);
+            
+            // Calculate annual values
+            const miscAnnual = miscBiweekly * 26;
+            const groceriesAnnual = groceriesBiweekly * 26;
+            const totalExpensesAnnual = 2508 + 4394 + 1296 + 1176 + 15360 + miscAnnual + groceriesAnnual;
+            const savingsAnnual = 49400 - totalExpensesAnnual;
+            
+            // Update annual display
+            document.getElementById('misc-annual').textContent = '$' + miscAnnual.toFixed(2);
+            document.getElementById('groceries-annual').textContent = '$' + groceriesAnnual.toFixed(2);
+            document.getElementById('total-expenses-annual').textContent = '$' + totalExpensesAnnual.toFixed(2);
+            document.getElementById('savings-annual').textContent = '$' + savingsAnnual.toFixed(2);
+            
+            // Update summary cards
+            document.getElementById('summary-biweekly').textContent = '$' + savingsBiweekly.toFixed(2);
+            document.getElementById('summary-monthly').textContent = '$' + savingsMonthly.toFixed(2);
+            document.getElementById('summary-annual').textContent = '$' + savingsAnnual.toFixed(2);
+        }
+
+        // Initialize the budget calculations
+        updateBudget();
+    </script>
+</body>
+</html>
